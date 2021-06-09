@@ -1,0 +1,68 @@
+package xdev.db.mysql.jdbc;
+
+/*-
+ * #%L
+ * Sqlengine Database Adapter Mysql 5
+ * %%
+ * Copyright (C) 2003 - 2021 XDEV Software
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Lesser Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Lesser Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/lgpl-3.0.html>.
+ * #L%
+ */
+
+
+import com.xdev.jadoth.sqlengine.dbms.DbmsSyntax;
+
+
+
+public class MySQLSyntax extends DbmsSyntax.Implementation<MySQLDbms>
+{
+	protected MySQLSyntax()
+	{
+		super(wordSet("ADD","ALL","ALTER","ANALYZE","AND","AS","ASC","ASENSITIVE","BEFORE",
+				"BETWEEN","BIGINT","BINARY","BLOB","BOTH","BY","CALL","CASCADE","CASE","CHANGE",
+				"CHAR","CHARACTER","CHECK","COLLATE","COLUMN","CONDITION","CONSTRAINT","CONTINUE",
+				"CONVERT","CREATE","CROSS","CURRENT_DATE","CURRENT_TIME","CURRENT_TIMESTAMP",
+				"CURRENT_USER","CURSOR","DATABASE","DATABASES","DAY_HOUR","DAY_MICROSECOND",
+				"DAY_MINUTE","DAY_SECOND","DEC","DECIMAL","DECLARE","DEFAULT","DELAYED","DELETE",
+				"DESC","DESCRIBE","DETERMINISTIC","DISTINCT","DISTINCTROW","DIV","DOUBLE","DROP",
+				"DUAL","EACH","ELSE","ELSEIF","ENCLOSED","ESCAPED","EXISTS","EXIT","EXPLAIN",
+				"FALSE","FETCH","FLOAT","FLOAT4","FLOAT8","FOR","FORCE","FOREIGN","FROM",
+				"FULLTEXT","GRANT","GROUP","HAVING","HIGH_PRIORITY","HOUR_MICROSECOND",
+				"HOUR_MINUTE","HOUR_SECOND","IF","IGNORE","IN","INDEX","INFILE","INNER","INOUT",
+				"INSENSITIVE","INSERT","INT","INT1","INT2","INT3","INT4","INT8","INTEGER",
+				"INTERVAL","INTO","IS","ITERATE","JOIN","KEY","KEYS","KILL","LEADING","LEAVE",
+				"LEFT","LIKE","LIMIT","LINES","LOAD","LOCALTIME","LOCALTIMESTAMP","LOCK","LONG",
+				"LONGBLOB","LONGTEXT","LOOP","LOW_PRIORITY","MATCH","MEDIUMBLOB","MEDIUMINT",
+				"MEDIUMTEXT","MIDDLEINT","MINUTE_MICROSECOND","MINUTE_SECOND","MOD","MODIFIES",
+				"NATURAL","NOT","NO_WRITE_TO_BINLOG","NULL","NUMERIC","ON","OPTIMIZE","OPTION",
+				"OPTIONALLY","OR","ORDER","OUT","OUTER","OUTFILE","PRECISION","PRIMARY",
+				"PROCEDURE","PURGE","READ","READS","REAL","REFERENCES","REGEXP","RELEASE","RENAME",
+				"REPEAT","REPLACE","REQUIRE","RESTRICT","RETURN","REVOKE","RIGHT","RLIKE","SCHEMA",
+				"SCHEMAS","SECOND_MICROSECOND","SELECT","SENSITIVE","SEPARATOR","SET","SHOW",
+				"SMALLINT","SONAME","SPATIAL","SPECIFIC","SQL","SQLEXCEPTION","SQLSTATE",
+				"SQLWARNING","SQL_BIG_RESULT","SQL_CALC_FOUND_ROWS","SQL_SMALL_RESULT","SSL",
+				"STARTING","STRAIGHT_JOIN","TABLE","TERMINATED","THEN","TINYBLOB","TINYINT",
+				"TINYTEXT","TO","TRAILING","TRIGGER","TRUE","UNDO","UNION","UNIQUE","UNLOCK",
+				"UNSIGNED","UPDATE","USAGE","USE","USING","UTC_DATE","UTC_TIME","UTC_TIMESTAMP",
+				"VALUES","VARBINARY","VARCHAR","VARCHARACTER","VARYING","WHEN","WHERE","WHILE",
+				"WITH","WRITE","XOR","YEAR_MONTH","ZEROFILL","ASENSITIVE","CALL","CONDITION",
+				"CONNECTION","CONTINUE","CURSOR","DECLARE","DETERMINISTIC","EACH","ELSEIF","EXIT",
+				"FETCH","GOTO","INOUT","INSENSITIVE","ITERATE","LABEL","LEAVE","LOOP","MODIFIES",
+				"OUT","READS","RELEASE","REPEAT","RETURN","SCHEMA","SCHEMAS","SENSITIVE",
+				"SPECIFIC","SQL","SQLEXCEPTION","SQLSTATE","SQLWARNING","TRIGGER","UNDO","UPGRADE",
+				"WHILE"),wordSet("ACTION","BIT","DATE","ENUM","NO","TEXT","TIME","TIMESTAMP"));
+	}
+}
