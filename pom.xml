@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<name>SqlEngine Database Adapter MySQL 5</name>
-	
+
 
 	<licenses>
 		<license>
@@ -167,6 +167,25 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<quiet>true</quiet>
+					<doclint>none</doclint>
+				</configuration>
 			</plugin>
 
 		</plugins>
