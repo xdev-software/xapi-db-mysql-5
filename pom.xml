@@ -5,7 +5,7 @@
 
 	<groupId>com.xdev-software</groupId>
 	<artifactId>xapi-db-mysql-5</artifactId>
-	<version>5.0.0</version>
+	<version>5.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>SqlEngine Database Adapter MySQL 5</name>
@@ -19,10 +19,13 @@
 	</licenses>
 
 	<properties>
+
+		<javaVersion>1.8</javaVersion>
+
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<license.licenseName>lgpl_v3</license.licenseName>
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<maven.compiler.source>${javaVersion}</maven.compiler.source>
+		<maven.compiler.target>${javaVersion}</maven.compiler.target>
 	</properties>
 
 	<organization>
@@ -42,13 +45,6 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.20</version>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.13</version>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
@@ -122,7 +118,7 @@
 									<version>3.5.4</version>
 								</requireMavenVersion>
 								<requireJavaVersion>
-									<version>1.8</version>
+									<version>${javaVersion}</version>
 								</requireJavaVersion>
 							</rules>
 						</configuration>
@@ -135,8 +131,8 @@
 				<version>3.8.1</version>
 				<configuration>
 					<compilerId>eclipse</compilerId>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${javaVersion}</source>
+					<target>${javaVersion}</target>
 				</configuration>
 				<dependencies>
 					<dependency>
@@ -160,10 +156,7 @@
 						</goals>
 						<phase>process-sources</phase>
 						<configuration>
-							<roots>
-								<root>src/main/java</root>
-								<root>src/test/java</root>
-							</roots>
+							<canUpdateCopyright>true</canUpdateCopyright>
 						</configuration>
 					</execution>
 				</executions>
@@ -187,6 +180,38 @@
 					<doclint>none</doclint>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>3.1.2</version>
+
+				<dependencies>
+					<dependency>
+						<groupId>com.puppycrawl.tools</groupId>
+						<artifactId>checkstyle</artifactId>
+						<version>8.44</version>
+					</dependency>
+				</dependencies>
+
+				<configuration>
+					<configLocation>checkstyle.xml</configLocation>
+					<encoding>UTF-8</encoding>
+					<consoleOutput>false</consoleOutput>
+					<failsOnError>true</failsOnError>
+					<linkXRef>false</linkXRef>
+				</configuration>
+				<executions>
+					<execution>
+						<id>validate</id>
+						<phase>validate</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 
 		</plugins>
 	</build>
