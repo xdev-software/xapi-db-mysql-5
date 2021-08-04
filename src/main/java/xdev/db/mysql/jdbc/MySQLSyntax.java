@@ -26,7 +26,7 @@ package xdev.db.mysql.jdbc;
 import com.xdev.jadoth.sqlengine.dbms.DbmsSyntax;
 
 
-
+ 
 public class MySQLSyntax extends DbmsSyntax.Implementation<MySQLDbms>
 {
 	protected MySQLSyntax()

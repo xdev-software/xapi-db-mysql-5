@@ -39,7 +39,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 	// /////////////////////////////////////////////////////////////////////////
 	// constants //
 	// ///////////////////
-	
+	 
 	/** The Constant DATATYPE_BIT. */
 	public static final String							DATATYPE_BIT		= "BIT";
 	
@@ -63,7 +63,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 	 */
 	private static final Hashtable<String, DATATYPE> createDataTypeStrings()
 	{
-		final Hashtable<String, DATATYPE> c = new Hashtable<String, DATATYPE>(10);
+		final Hashtable<String, DATATYPE> c = new Hashtable<>(10);
 		
 		c.put(DATATYPE_BIT,SQL.DATATYPE.BOOLEAN);
 		
@@ -75,7 +75,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 		c.put(SQL.DATATYPE.FLOAT.name(),SQL.DATATYPE.DOUBLE);
 		
 		// replicate the whole stuff for lower case, just in case
-		for(String s : c.keySet().toArray(new String[c.size()]))
+		for(final String s : c.keySet().toArray(new String[c.size()]))
 		{
 			c.put(s.toLowerCase(),c.get(s));
 		}
@@ -111,7 +111,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 	 *            the data type string
 	 * @return the dATATYPE
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsDDLMapper.AbstractBody#mapDataType(java.lang.String)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsDDLMapper.AbstractBody#mapDataType(java.lang.String)
 	 */
 	@Override
 	public DATATYPE mapDataType(final String dataTypeString)
@@ -135,7 +135,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 	 *            the index type string
 	 * @return the iNDEXTYPE
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsDDLMapper.AbstractBody#mapIndexType(java.lang.String)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsDDLMapper.AbstractBody#mapIndexType(java.lang.String)
 	 */
 	@Override
 	public INDEXTYPE mapIndexType(final String indexTypeString)
@@ -163,7 +163,7 @@ public class MySQLDDLMapper extends StandardDDLMapper<MySQLDbms>
 	 *            the table
 	 * @return the string
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsDDLMapper.AbstractBody#lookupDdbmsDataTypeMapping(com.xdev.jadoth.sqlengine.SQL.DATATYPE,
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsDDLMapper.AbstractBody#lookupDdbmsDataTypeMapping(com.xdev.jadoth.sqlengine.SQL.DATATYPE,
 	 *      com.xdev.jadoth.sqlengine.internal.tables.SqlTableIdentity)
 	 */
 	@Override

@@ -22,7 +22,6 @@ package xdev.db.mysql.jdbc;
  * #L%
  */
 
-
 import com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor;
 import com.xdev.jadoth.sqlengine.dbms.SQLExceptionParser;
 import com.xdev.jadoth.sqlengine.interfaces.ConnectionProvider;
@@ -30,21 +29,20 @@ import com.xdev.jadoth.sqlengine.internal.DatabaseGateway;
 import com.xdev.jadoth.sqlengine.internal.tables.SqlTableIdentity;
 
 
-public class MySQLDbms
-		extends
-		DbmsAdaptor.Implementation<MySQLDbms, MySQLDMLAssembler, MySQLDDLMapper, MySQLRetrospectionAccessor, MySQLSyntax>
+public class MySQLDbms 
+	extends
+	DbmsAdaptor.Implementation<MySQLDbms, MySQLDMLAssembler, MySQLDDLMapper, MySQLRetrospectionAccessor, MySQLSyntax>
 {
 	// /////////////////////////////////////////////////////////////////////////
 	// constants //
 	// ///////////////////
 	
 	/** The Constant MAX_VARCHAR_LENGTH. */
-	protected static final int		MAX_VARCHAR_LENGTH		= 4000;
+	protected static final int MAX_VARCHAR_LENGTH = 4000;
 	
-	protected static final char		IDENTIFIER_DELIMITER	= '`';
+	protected static final char IDENTIFIER_DELIMITER = '`';
 	
-	public static final MySQLSyntax	SYNTAX					= new MySQLSyntax();
-	
+	public static final MySQLSyntax SYNTAX = new MySQLSyntax();
 	
 	// /////////////////////////////////////////////////////////////////////////
 	// static methods //
@@ -67,13 +65,24 @@ public class MySQLDbms
 	 *            the extended url properties
 	 * @return the connection provider
 	 */
-	public static ConnectionProvider<MySQLDbms> singleConnection(final String host, final int port,
-			final String user, final String password, final String database, final String properties)
+	public static ConnectionProvider<MySQLDbms> singleConnection(
+		final String host,
+		final int port,
+		final String user,
+		final String password,
+		final String database,
+		final String properties)
 	{
-		return new ConnectionProvider.Body<MySQLDbms>(new MySQLConnectionInformation(host,port,
-				user,password,database,properties,new MySQLDbms()));
+		return new ConnectionProvider.Body<>(
+			new MySQLConnectionInformation(
+				host,
+				port,
+				user,
+				password,
+				database,
+				properties,
+				new MySQLDbms()));
 	}
-	
 	
 	// /////////////////////////////////////////////////////////////////////////
 	// constructors //
@@ -84,20 +93,18 @@ public class MySQLDbms
 		this(new MySQLExceptionParser());
 	}
 	
-	
 	/**
 	 * @param sqlExceptionParser
 	 *            the sql exception parser
 	 */
 	public MySQLDbms(final SQLExceptionParser sqlExceptionParser)
 	{
-		super(sqlExceptionParser,false);
+		super(sqlExceptionParser, false);
 		this.setRetrospectionAccessor(new MySQLRetrospectionAccessor(this));
 		this.setDMLAssembler(new MySQLDMLAssembler(this));
 		this.setDdlMapper(new MySQLDDLMapper(this));
 		this.setSyntax(SYNTAX);
 	}
-	
 	
 	/**
 	 * @param host
@@ -106,17 +113,20 @@ public class MySQLDbms
 	 * @param password
 	 * @param catalog
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#createConnectionInformation(java.lang.String,
-	 *      int, java.lang.String, java.lang.String, java.lang.String)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#createConnectionInformation(String, int, String, String, String,
+	 *      String)
 	 */
 	@Override
-	public MySQLConnectionInformation createConnectionInformation(final String host,
-			final int port, final String user, final String password, final String catalog,
-			final String properties)
+	public MySQLConnectionInformation createConnectionInformation(
+		final String host,
+		final int port,
+		final String user,
+		final String password,
+		final String catalog,
+		final String properties)
 	{
-		return new MySQLConnectionInformation(host,port,user,password,catalog,properties,this);
+		return new MySQLConnectionInformation(host, port, user, password, catalog, properties, this);
 	}
-	
 	
 	@Override
 	public boolean supportsOFFSET_ROWS()
@@ -124,11 +134,10 @@ public class MySQLDbms
 		return true;
 	}
 	
-	
 	/**
 	 * @param table
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#updateSelectivity(com.xdev.jadoth.sqlengine.internal.tables.SqlTableIdentity)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#updateSelectivity(com.xdev.jadoth.sqlengine.internal.tables.SqlTableIdentity)
 	 */
 	@Override
 	public Object updateSelectivity(final SqlTableIdentity table)
@@ -136,12 +145,11 @@ public class MySQLDbms
 		return null;
 	}
 	
-	
 	/**
 	 * @param bytes
 	 * @param sb
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#assembleTransformBytes(byte[],
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#assembleTransformBytes(byte[],
 	 *      java.lang.StringBuilder)
 	 */
 	@Override
@@ -150,21 +158,19 @@ public class MySQLDbms
 		return sb;
 	}
 	
-	
 	/**
 	 * @param dbc
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#initialize(com.xdev.jadoth.sqlengine.internal.DatabaseGateway)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#initialize(com.xdev.jadoth.sqlengine.internal.DatabaseGateway)
 	 */
 	@Override
 	public void initialize(final DatabaseGateway<MySQLDbms> dbc)
 	{
 	}
 	
-	
 	/**
 	 * @param fullQualifiedTableName
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#rebuildAllIndices(java.lang.String)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#rebuildAllIndices(java.lang.String)
 	 */
 	@Override
 	public Object rebuildAllIndices(final String fullQualifiedTableName)
@@ -172,17 +178,15 @@ public class MySQLDbms
 		return null;
 	}
 	
-	
 	/**
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsAdaptor#getMaxVARCHARlength()
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsAdaptor#getMaxVARCHARlength()
 	 */
 	@Override
 	public int getMaxVARCHARlength()
 	{
 		return MAX_VARCHAR_LENGTH;
 	}
-	
 	
 	@Override
 	public char getIdentifierDelimiter()

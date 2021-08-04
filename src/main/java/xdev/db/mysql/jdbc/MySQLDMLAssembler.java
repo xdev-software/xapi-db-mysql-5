@@ -54,7 +54,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 {
 	protected static final char	DELIM	= '`';
 	
-	
+	 
 	// /////////////////////////////////////////////////////////////////////////
 	// constructors //
 	// ///////////////////
@@ -66,7 +66,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	
 	
 	@Override
-	public StringBuilder assembleColumnQualifier(SqlColumn column, StringBuilder sb, int flags)
+	public StringBuilder assembleColumnQualifier(final SqlColumn column, final StringBuilder sb, final int flags)
 	{
 		final TableExpression owner = column.getOwner();
 		String qualifier = getAlias(owner);
@@ -74,7 +74,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 		{
 			qualifier = owner.toString();
 		}
-		boolean delim = needsDelimiter(qualifier);
+		final boolean delim = needsDelimiter(qualifier);
 		if(delim)
 		{
 			sb.append(DELIM);
@@ -90,7 +90,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	
 	
 	@Override
-	public StringBuilder assembleColumn(SqlColumn column, StringBuilder sb, int indentLevel,
+	public StringBuilder assembleColumn(final SqlColumn column, final StringBuilder sb, final int indentLevel,
 			int flags)
 	{
 		final TableExpression owner = column.getOwner();
@@ -125,8 +125,8 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	
 	
 	@Override
-	public StringBuilder assembleTableIdentifier(SqlTableIdentity table, StringBuilder sb,
-			int indentLevel, int flags)
+	public StringBuilder assembleTableIdentifier(final SqlTableIdentity table, final StringBuilder sb,
+			final int indentLevel, final int flags)
 	{
 		final DbmsAdaptor<?> dbms = this.getDbmsAdaptor();
 		final DbmsSyntax<?> syntax = dbms.getSyntax();
@@ -138,7 +138,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 		
 		if(schema != null)
 		{
-			boolean delim = needsDelimiter(schema);
+			final boolean delim = needsDelimiter(schema);
 			if(delim)
 			{
 				sb.append(DELIM);
@@ -151,7 +151,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 			sb.append(dot);
 		}
 		
-		boolean delim = needsDelimiter(name);
+		final boolean delim = needsDelimiter(name);
 		if(delim)
 		{
 			sb.append(DELIM);
@@ -183,7 +183,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	}
 	
 	
-	private boolean needsDelimiter(String name)
+	private boolean needsDelimiter(final String name)
 	{
 		if(MySQLDbms.SYNTAX.isKeyword(name))
 		{
@@ -195,7 +195,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 			SqlIdentifier.validateIdentifierString(name);
 			return false;
 		}
-		catch(SQLEngineInvalidIdentifier e)
+		catch(final SQLEngineInvalidIdentifier e)
 		{
 			return true;
 		}
@@ -213,7 +213,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	 * @param clauseSeperator
 	 * @param newLine
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.standard.StandardDMLAssembler#assembleSELECT(com.xdev.jadoth.sqlengine.SELECT,
+	 * @see com.xdev.jadoth.sqlengine.dbms.standard.StandardDMLAssembler#assembleSELECT(com.xdev.jadoth.sqlengine.SELECT,
 	 *      java.lang.StringBuilder, int, int, java.lang.String,
 	 *      java.lang.String)
 	 */
@@ -241,7 +241,7 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	 * @param newLine
 	 * @param indentLevel
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.standard.StandardDMLAssembler#assembleSelectRowLimit(com.xdev.jadoth.sqlengine.SELECT,
+	 * @see com.xdev.jadoth.sqlengine.dbms.standard.StandardDMLAssembler#assembleSelectRowLimit(com.xdev.jadoth.sqlengine.SELECT,
 	 *      java.lang.StringBuilder, int, java.lang.String, java.lang.String,
 	 *      int)
 	 */
@@ -267,8 +267,8 @@ public class MySQLDMLAssembler extends StandardDMLAssembler<MySQLDbms>
 	
 	
 	@Override
-	protected StringBuilder assembleINSERT(INSERT query, StringBuilder sb, int flags,
-			String clauseSeperator, String newLine, int indentLevel)
+	protected StringBuilder assembleINSERT(final INSERT query, final StringBuilder sb, final int flags,
+			final String clauseSeperator, final String newLine, final int indentLevel)
 	{
 		indent(sb,indentLevel,isSingleLine(flags)).append(query.keyword()).append(_INTO_);
 		
