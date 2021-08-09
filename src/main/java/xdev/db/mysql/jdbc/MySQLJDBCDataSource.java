@@ -32,7 +32,7 @@ public class MySQLJDBCDataSource extends JDBCDataSource<MySQLJDBCDataSource, MyS
 	public MySQLJDBCDataSource()
 	{
 		super(new MySQLDbms());
-	}
+	} 
 	
 	
 	@Override

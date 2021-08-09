@@ -61,14 +61,14 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	private static final long	serialVersionUID	= -4935821256152833016L;
 	
 	
-	public MySQLJDBCMetaData(MySQLJDBCDataSource dataSource) throws DBException
+	public MySQLJDBCMetaData(final MySQLJDBCDataSource dataSource) throws DBException
 	{
 		super(dataSource);
 	}
 	
 	
 	@Override
-	public TableMetaData[] getTableMetaData(ProgressMonitor monitor, int flags, TableInfo... tables)
+	public TableMetaData[] getTableMetaData(final ProgressMonitor monitor, final int flags, final TableInfo... tables)
 			throws DBException
 	{
 		if(tables == null || tables.length == 0)
@@ -76,34 +76,34 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 			return new TableMetaData[0];
 		}
 		
-		List<TableMetaData> list = new ArrayList(tables.length);
+		final List<TableMetaData> list = new ArrayList(tables.length);
 		
 		try
 		{
-			JDBCConnection jdbcConnection = (JDBCConnection)dataSource.openConnection();
+			final JDBCConnection jdbcConnection = (JDBCConnection)dataSource.openConnection();
 			
 			try
 			{
 				monitor.beginTask("",ProgressMonitor.UNKNOWN);
 				
-				DatabaseMetaData meta = jdbcConnection.getConnection().getMetaData();
+				final DatabaseMetaData meta = jdbcConnection.getConnection().getMetaData();
 				
-				ResultSet rs = meta.getColumns(getCatalog(dataSource),getSchema(dataSource),null,
+				final ResultSet rs = meta.getColumns(getCatalog(dataSource),getSchema(dataSource),null,
 						null);
-				JDBCResult jrs = new JDBCResult(rs);
+				final JDBCResult jrs = new JDBCResult(rs);
 				
 				// workaround for mysql-jdbc-(bug?)
 				// COLUMN_NAME's length is 10, so the names get cut
 				jrs.getMetadata(3).setLength(-1);
 				
-				VirtualTable vtColumns = new VirtualTable(jrs,true);
+				final VirtualTable vtColumns = new VirtualTable(jrs,true);
 				rs.close();
-				Map<String, List<VirtualTableRow>> columnMap = toMap(vtColumns,"TABLE_NAME");
+				final Map<String, List<VirtualTableRow>> columnMap = toMap(vtColumns,"TABLE_NAME");
 				
 				Map<String, List<VirtualTableRow>> indexMap = null;
 				if((flags & INDICES) != 0 && !monitor.isCanceled())
 				{
-					Result r = jdbcConnection.query(
+					final Result r = jdbcConnection.query(
 							"SELECT TABLE_NAME,NON_UNIQUE,INDEX_NAME,SEQ_IN_INDEX,COLUMN_NAME "
 									+ "FROM INFORMATION_SCHEMA.STATISTICS "
 									+ "WHERE TABLE_SCHEMA=? ORDER BY TABLE_NAME,SEQ_IN_INDEX",
@@ -113,7 +113,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 					// COLUMN_NAME's length is 10, so the names get cut
 					r.getMetadata(4).setLength(-1);
 					
-					VirtualTable vtIndexInfo = new VirtualTable(r,true);
+					final VirtualTable vtIndexInfo = new VirtualTable(r,true);
 					rs.close();
 					indexMap = toMap(vtIndexInfo,"TABLE_NAME");
 				}
@@ -121,7 +121,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 				monitor.beginTask("",tables.length);
 				
 				int done = 0;
-				for(TableInfo table : tables)
+				for(final TableInfo table : tables)
 				{
 					if(monitor.isCanceled())
 					{
@@ -134,7 +134,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 						list.add(getTableMetaData(jdbcConnection,meta,flags,table,columnMap,
 								indexMap));
 					}
-					catch(Exception e)
+					catch(final Exception e)
 					{
 						e.printStackTrace();
 					}
@@ -146,7 +146,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 				jdbcConnection.close();
 			}
 		}
-		catch(SQLException e)
+		catch(final SQLException e)
 		{
 			throw new DBException(dataSource,e);
 		}
@@ -157,31 +157,31 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	}
 	
 	
-	protected TableMetaData getTableMetaData(JDBCConnection jdbcConnection, DatabaseMetaData meta,
-			int flags, TableInfo table, Map<String, List<VirtualTableRow>> columnMap,
-			Map<String, List<VirtualTableRow>> indexMap) throws DBException, SQLException
+	protected TableMetaData getTableMetaData(final JDBCConnection jdbcConnection, final DatabaseMetaData meta,
+			final int flags, final TableInfo table, final Map<String, List<VirtualTableRow>> columnMap,
+			final Map<String, List<VirtualTableRow>> indexMap) throws DBException, SQLException
 	{
-		String tableName = table.getName();
+		final String tableName = table.getName();
 		
-		List<VirtualTableRow> columnRows = columnMap.get(tableName.toUpperCase());
-		int columnCount = columnRows.size();
-		ColumnMetaData[] columns = new ColumnMetaData[columnCount];
+		final List<VirtualTableRow> columnRows = columnMap.get(tableName.toUpperCase());
+		final int columnCount = columnRows.size();
+		final ColumnMetaData[] columns = new ColumnMetaData[columnCount];
 		for(int i = 0; i < columnCount; i++)
 		{
-			VirtualTableRow dataRow = columnRows.get(i);
-			String columnName = (String)dataRow.get("COLUMN_NAME");
-			String caption = null;
-			int sqlType = ((Number)dataRow.get("DATA_TYPE")).intValue();
-			DataType type = DataType.get(sqlType);
-			Object lengthObj = dataRow.get("COLUMN_SIZE");
-			int length = lengthObj instanceof Number ? ((Number)lengthObj).intValue() : 0;
-			Object scaleObj = dataRow.get("DECIMAL_DIGITS");
+			final VirtualTableRow dataRow = columnRows.get(i);
+			final String columnName = (String)dataRow.get("COLUMN_NAME");
+			final String caption = null;
+			final int sqlType = ((Number)dataRow.get("DATA_TYPE")).intValue();
+			final DataType type = DataType.get(sqlType);
+			final Object lengthObj = dataRow.get("COLUMN_SIZE");
+			final int length = lengthObj instanceof Number ? ((Number)lengthObj).intValue() : 0;
+			final Object scaleObj = dataRow.get("DECIMAL_DIGITS");
 			int scale = scaleObj instanceof Number ? ((Number)scaleObj).intValue() : 0;
 			if(scale < 0)
 			{
 				scale = 0;
 			}
-			String defaultStr = (String)dataRow.get("COLUMN_DEF");
+			final String defaultStr = (String)dataRow.get("COLUMN_DEF");
 			Object defaultValue = null;
 			if(!(defaultStr == null || "null".equals(defaultStr)))
 			{
@@ -195,7 +195,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 					{
 						defaultValue = Double.parseDouble(defaultStr);
 					}
-					catch(NumberFormatException e)
+					catch(final NumberFormatException e)
 					{
 						e.printStackTrace();
 					}
@@ -206,36 +206,36 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 					{
 						defaultValue = Integer.parseInt(defaultStr);
 					}
-					catch(NumberFormatException e)
+					catch(final NumberFormatException e)
 					{
 						e.printStackTrace();
 					}
 				}
 			}
-			boolean nullable = ((Number)dataRow.get("NULLABLE")).intValue() == DatabaseMetaData.columnNullable;
-			boolean autoIncrement = "Y".equalsIgnoreCase((String)dataRow.get("IS_AUTOINCREMENT"));
+			final boolean nullable = ((Number)dataRow.get("NULLABLE")).intValue() == DatabaseMetaData.columnNullable;
+			final boolean autoIncrement = "Y".equalsIgnoreCase((String)dataRow.get("IS_AUTOINCREMENT"));
 			
 			columns[i] = new ColumnMetaData(tableName,columnName,caption,type,length,scale,
 					defaultValue,nullable,autoIncrement);
 		}
 		
-		Map<IndexInfo, Set<String>> indexColumnMap = new LinkedHashMap();
-		int count = UNKNOWN_ROW_COUNT;
+		final Map<IndexInfo, Set<String>> indexColumnMap = new LinkedHashMap();
+		final int count = UNKNOWN_ROW_COUNT;
 		
 		if(table.getType() == TableType.TABLE)
 		{
 			if((flags & INDICES) != 0 && indexMap != null)
 			{
-				List<VirtualTableRow> indexRows = indexMap.get(tableName.toUpperCase());
+				final List<VirtualTableRow> indexRows = indexMap.get(tableName.toUpperCase());
 				if(indexRows != null && indexRows.size() > 0)
 				{
-					for(VirtualTableRow pkRow : indexRows)
+					for(final VirtualTableRow pkRow : indexRows)
 					{
-						String indexName = (String)pkRow.get("INDEX_NAME");
-						String columnName = (String)pkRow.get("COLUMN_NAME");
+						final String indexName = (String)pkRow.get("INDEX_NAME");
+						final String columnName = (String)pkRow.get("COLUMN_NAME");
 						if(indexName != null && columnName != null)
 						{
-							boolean unique = ((Number)pkRow.get("NON_UNIQUE")).intValue() == 0;
+							final boolean unique = ((Number)pkRow.get("NON_UNIQUE")).intValue() == 0;
 							IndexType indexType;
 							if("PRIMARY".equals(indexName) || "PRI".equals(indexName))
 							{
@@ -249,7 +249,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 							{
 								indexType = IndexType.NORMAL;
 							}
-							IndexInfo info = new IndexInfo(indexName,indexType);
+							final IndexInfo info = new IndexInfo(indexName,indexType);
 							Set<String> columnNames = indexColumnMap.get(info);
 							if(columnNames == null)
 							{
@@ -263,12 +263,12 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 			}
 		}
 		
-		Index[] indices = new Index[indexColumnMap.size()];
+		final Index[] indices = new Index[indexColumnMap.size()];
 		int i = 0;
-		for(IndexInfo indexInfo : indexColumnMap.keySet())
+		for(final IndexInfo indexInfo : indexColumnMap.keySet())
 		{
-			Set<String> columnList = indexColumnMap.get(indexInfo);
-			String[] indexColumns = columnList.toArray(new String[columnList.size()]);
+			final Set<String> columnList = indexColumnMap.get(indexInfo);
+			final String[] indexColumns = columnList.toArray(new String[columnList.size()]);
 			indices[i++] = new Index(indexInfo.name,indexInfo.type,indexColumns);
 		}
 		
@@ -277,18 +277,18 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	public EntityRelationshipModel getEntityRelationshipModel(ProgressMonitor monitor,
-			TableInfo... tableInfos) throws DBException
+	public EntityRelationshipModel getEntityRelationshipModel(final ProgressMonitor monitor,
+			final TableInfo... tableInfos) throws DBException
 	{
 		monitor.beginTask("",ProgressMonitor.UNKNOWN);
 		monitor.setTaskName("");
 		
-		EntityRelationshipModel model = new EntityRelationshipModel();
+		final EntityRelationshipModel model = new EntityRelationshipModel();
 		
 		try
 		{
-			List<String> tables = new ArrayList();
-			for(TableInfo table : tableInfos)
+			final List<String> tables = new ArrayList();
+			for(final TableInfo table : tableInfos)
 			{
 				if(table.getType() == TableType.TABLE)
 				{
@@ -296,28 +296,28 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 				}
 			}
 			
-			ConnectionProvider connectionProvider = dataSource.getConnectionProvider();
-			Connection connection = connectionProvider.getConnection();
+			final ConnectionProvider connectionProvider = dataSource.getConnectionProvider();
+			final Connection connection = connectionProvider.getConnection();
 			
 			try
 			{
-				String catalog = getCatalog(dataSource);
-				String schema = getSchema(dataSource);
+				final String catalog = getCatalog(dataSource);
+				final String schema = getSchema(dataSource);
 				
-				MySQLDatabaseMetaDataFork meta = new MySQLDatabaseMetaDataFork(connection,catalog,
+				final MySQLDatabaseMetaDataFork meta = new MySQLDatabaseMetaDataFork(connection,catalog,
 						tableInfos);
 				
-				ResultSet rs = meta.getExportedKeys(catalog,schema);
+				final ResultSet rs = meta.getExportedKeys(catalog,schema);
 				try
 				{
 					String pkTable = null;
 					String fkTable = null;
-					List<String> pkColumns = new ArrayList();
-					List<String> fkColumns = new ArrayList();
+					final List<String> pkColumns = new ArrayList();
+					final List<String> fkColumns = new ArrayList();
 					
 					while(rs.next())
 					{
-						short keySeq = rs.getShort("KEY_SEQ");
+						final short keySeq = rs.getShort("KEY_SEQ");
 						
 						if(keySeq == 1 && pkColumns.size() > 0)
 						{
@@ -362,7 +362,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 				connection.close();
 			}
 		}
-		catch(SQLException e)
+		catch(final SQLException e)
 		{
 			throw new DBException(dataSource,e);
 		}
@@ -373,11 +373,11 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	}
 	
 	
-	private Map<String, List<VirtualTableRow>> toMap(VirtualTable vt, String columnName)
+	private Map<String, List<VirtualTableRow>> toMap(final VirtualTable vt, final String columnName)
 	{
-		Map<String, List<VirtualTableRow>> columnMap = new HashMap();
-		int tableNameColumnIndex = vt.getColumnIndex(columnName);
-		for(VirtualTableRow row : vt.rows())
+		final Map<String, List<VirtualTableRow>> columnMap = new HashMap();
+		final int tableNameColumnIndex = vt.getColumnIndex(columnName);
+		for(final VirtualTableRow row : vt.rows())
 		{
 			CollectionUtils.accumulate(columnMap,
 					((String)row.get(tableNameColumnIndex)).toUpperCase(),row);
@@ -387,17 +387,17 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void createTable(JDBCConnection jdbcConnection, TableMetaData table)
+	protected void createTable(final JDBCConnection jdbcConnection, final TableMetaData table)
 			throws DBException, SQLException
 	{
-		List params = new ArrayList();
+		final List params = new ArrayList();
 		
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("CREATE TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		sb.append(" (");
 		
-		ColumnMetaData[] columns = table.getColumns();
+		final ColumnMetaData[] columns = table.getColumns();
 		for(int i = 0; i < columns.length; i++)
 		{
 			if(i > 0)
@@ -405,13 +405,13 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 				sb.append(", ");
 			}
 			
-			ColumnMetaData column = columns[i];
+			final ColumnMetaData column = columns[i];
 			appendEscapedName(column.getName(),sb);
 			sb.append(" ");
 			appendColumnDefinition(column,sb,params);
 		}
 		
-		for(Index index : table.getIndices())
+		for(final Index index : table.getIndices())
 		{
 			sb.append(", ");
 			appendIndexDefinition(index,sb);
@@ -424,13 +424,13 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void addColumn(JDBCConnection jdbcConnection, TableMetaData table,
-			ColumnMetaData column, ColumnMetaData columnBefore, ColumnMetaData columnAfter)
+	protected void addColumn(final JDBCConnection jdbcConnection, final TableMetaData table,
+			final ColumnMetaData column, final ColumnMetaData columnBefore, final ColumnMetaData columnAfter)
 			throws DBException, SQLException
 	{
-		List params = new ArrayList();
+		final List params = new ArrayList();
 		
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ALTER TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		sb.append(" ADD COLUMN ");
@@ -452,12 +452,12 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void alterColumn(JDBCConnection jdbcConnection, TableMetaData table,
-			ColumnMetaData column, ColumnMetaData existing) throws DBException, SQLException
+	protected void alterColumn(final JDBCConnection jdbcConnection, final TableMetaData table,
+			final ColumnMetaData column, final ColumnMetaData existing) throws DBException, SQLException
 	{
-		List params = new ArrayList();
+		final List params = new ArrayList();
 		
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ALTER TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		sb.append(" MODIFY COLUMN ");
@@ -471,10 +471,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 
 	@SuppressWarnings("incomplete-switch")
 	@Override
-	public boolean equalsType(ColumnMetaData clientColumn, ColumnMetaData dbColumn)
+	public boolean equalsType(final ColumnMetaData clientColumn, final ColumnMetaData dbColumn)
 	{
-		DataType clientType = clientColumn.getType();
-		DataType dbType = dbColumn.getType();
+		final DataType clientType = clientColumn.getType();
+		final DataType dbType = dbColumn.getType();
 		
 		if(clientType == dbType)
 		{
@@ -541,10 +541,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 
 	@SuppressWarnings("incomplete-switch")
-	private Boolean getTypeMatch(ColumnMetaData thisColumn, ColumnMetaData thatColumn)
+	private Boolean getTypeMatch(final ColumnMetaData thisColumn, final ColumnMetaData thatColumn)
 	{
-		DataType thisType = thisColumn.getType();
-		DataType thatType = thatColumn.getType();
+		final DataType thisType = thisColumn.getType();
+		final DataType thatType = thatColumn.getType();
 		
 		switch(thisType)
 		{
@@ -567,10 +567,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	}
 	
 	
-	private boolean equalsTextLengthRange(ColumnMetaData clientColumn, ColumnMetaData dbColumn)
+	private boolean equalsTextLengthRange(final ColumnMetaData clientColumn, final ColumnMetaData dbColumn)
 	{
-		int clientLength = clientColumn.getLength();
-		int dbLength = dbColumn.getLength();
+		final int clientLength = clientColumn.getLength();
+		final int dbLength = dbColumn.getLength();
 		
 		if(clientLength == dbLength)
 		{
@@ -597,10 +597,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	}
 	
 	
-	private boolean equalsBinaryLengthRange(ColumnMetaData clientColumn, ColumnMetaData dbColumn)
+	private boolean equalsBinaryLengthRange(final ColumnMetaData clientColumn, final ColumnMetaData dbColumn)
 	{
-		int clientLength = clientColumn.getLength();
-		int dbLength = dbColumn.getLength();
+		final int clientLength = clientColumn.getLength();
+		final int dbLength = dbColumn.getLength();
 		
 		if(clientLength == dbLength)
 		{
@@ -618,23 +618,23 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 		{
 			return dbLength <= 16777215;
 		}
-		else if(clientLength <= 4294967295l)
+		else if(clientLength <= 4294967295L)
 		{
-			return dbLength <= 4294967295l;
+			return dbLength <= 4294967295L;
 		}
-		else if(clientLength > 4294967295l)
+		else if(clientLength > 4294967295L)
 		{
-			return dbLength > 4294967295l;
+			return dbLength > 4294967295L;
 		}
-		
+		 
 		return false;
 	}
 	
 
 	@SuppressWarnings("incomplete-switch")
-	private void appendColumnDefinition(ColumnMetaData column, StringBuilder sb, List params)
+	private void appendColumnDefinition(final ColumnMetaData column, final StringBuilder sb, final List params)
 	{
-		DataType type = column.getType();
+		final DataType type = column.getType();
 		switch(type)
 		{
 			case TINYINT:
@@ -685,7 +685,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 			case CLOB:
 			case LONGVARCHAR:
 			{
-				int length = column.getLength();
+				final int length = column.getLength();
 				if(length <= 255)
 				{
 					sb.append("TINYTEXT");
@@ -708,20 +708,20 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 			case BLOB:
 			case LONGVARBINARY:
 			{
-				int length = column.getLength();
+				final int length = column.getLength();
 				if(length <= 255)
 				{
 					sb.append("TINYBLOB");
 				}
 				else if(length <= 65535)
-				{
+				{ 
 					sb.append("BLOB");
 				}
 				else if(length <= 16777215)
 				{
 					sb.append("MEDIUMBLOB");
 				}
-				else if(length <= 4294967295l)
+				else if(length <= 4294967295L)
 				{
 					sb.append("LONGBLOB");
 				}
@@ -748,7 +748,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 		}
 		else
 		{
-			Object defaultValue = column.getDefaultValue();
+			final Object defaultValue = column.getDefaultValue();
 			if(!(defaultValue == null && !column.isNullable()))
 			{
 				sb.append(" DEFAULT ");
@@ -767,10 +767,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void dropColumn(JDBCConnection jdbcConnection, TableMetaData table,
-			ColumnMetaData column) throws DBException, SQLException
+	protected void dropColumn(final JDBCConnection jdbcConnection, final TableMetaData table,
+			final ColumnMetaData column) throws DBException, SQLException
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ALTER TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		sb.append(" DROP COLUMN ");
@@ -781,10 +781,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void createIndex(JDBCConnection jdbcConnection, TableMetaData table, Index index)
+	protected void createIndex(final JDBCConnection jdbcConnection, final TableMetaData table, final Index index)
 			throws DBException, SQLException
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ALTER TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		sb.append(" ADD ");
@@ -794,7 +794,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	}
 	
 	
-	private void appendIndexDefinition(Index index, StringBuilder sb)
+	private void appendIndexDefinition(final Index index, final StringBuilder sb)
 	{
 		switch(index.getType())
 		{
@@ -818,7 +818,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 		}
 		
 		sb.append(" (");
-		String[] columns = index.getColumns();
+		final String[] columns = index.getColumns();
 		for(int i = 0; i < columns.length; i++)
 		{
 			if(i > 0)
@@ -832,10 +832,10 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void dropIndex(JDBCConnection jdbcConnection, TableMetaData table, Index index)
+	protected void dropIndex(final JDBCConnection jdbcConnection, final TableMetaData table, final Index index)
 			throws DBException, SQLException
 	{
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("ALTER TABLE ");
 		appendEscapedName(table.getTableInfo().getName(),sb);
 		
@@ -854,7 +854,7 @@ public class MySQLJDBCMetaData extends JDBCMetaData
 	
 	
 	@Override
-	protected void appendEscapedName(String name, StringBuilder sb)
+	protected void appendEscapedName(final String name, final StringBuilder sb)
 	{
 		sb.append("`");
 		sb.append(name);
