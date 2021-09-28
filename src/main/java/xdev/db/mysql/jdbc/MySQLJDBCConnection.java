@@ -28,9 +28,9 @@ import xdev.db.jdbc.JDBCConnection;
 
 public class MySQLJDBCConnection extends JDBCConnection<MySQLJDBCDataSource, MySQLDbms>
 {
-	public MySQLJDBCConnection(MySQLJDBCDataSource dataSource)
+	public MySQLJDBCConnection(final MySQLJDBCDataSource dataSource)
 	{
 		super(dataSource);
-	}
+	} 
 	
 }

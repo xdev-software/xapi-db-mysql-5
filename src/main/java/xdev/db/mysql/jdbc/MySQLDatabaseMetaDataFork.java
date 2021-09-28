@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.StringTokenizer;
 
-import xdev.db.DBMetaData.TableInfo;
-
 import com.mysql.jdbc.AssertionFailedException;
 import com.mysql.jdbc.ByteArrayRow;
 import com.mysql.jdbc.ExceptionInterceptor;
@@ -52,17 +50,19 @@ import com.mysql.jdbc.StatementImpl;
 import com.mysql.jdbc.StringUtils;
 import com.mysql.jdbc.Util;
 
+import xdev.db.DBMetaData.TableInfo;
+
 
 class MySQLDatabaseMetaDataFork
 {
-	private MySQLConnection			conn;
-	private ExceptionInterceptor	exceptionInterceptor;
+	private final MySQLConnection			conn;
+	private final ExceptionInterceptor	exceptionInterceptor;
 	private String					database	= null;
 	private String					quotedId	= null;
-	private String[]				tables;
+	private final String[]				tables;
 	
 	
-	MySQLDatabaseMetaDataFork(Connection conn, String database, TableInfo[] tables)
+	MySQLDatabaseMetaDataFork(final Connection conn, final String database, final TableInfo[] tables)
 	{
 		this.conn = getMySQLConnection(conn);
 		this.exceptionInterceptor = this.conn.getExceptionInterceptor();
@@ -102,9 +102,9 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	public ResultSet getExportedKeys(String catalog, String schema) throws SQLException
+	public ResultSet getExportedKeys(final String catalog, final String schema) throws SQLException
 	{
-		Field[] fields = createFkMetadataFields();
+		final Field[] fields = createFkMetadataFields();
 		
 		final ArrayList rows = new ArrayList();
 		
@@ -117,7 +117,7 @@ class MySQLDatabaseMetaDataFork
 				new IterateBlock(getCatalogIterator(catalog))
 				{
 					@Override
-					void forEach(Object catalogStr) throws SQLException
+					void forEach(final Object catalogStr) throws SQLException
 					{
 						ResultSet fkresults = null;
 						
@@ -136,7 +136,7 @@ class MySQLDatabaseMetaDataFork
 							}
 							else
 							{
-								StringBuffer queryBuf = new StringBuffer("SHOW TABLE STATUS FROM ");
+								final StringBuffer queryBuf = new StringBuffer("SHOW TABLE STATUS FROM ");
 								queryBuf.append(quotedId);
 								queryBuf.append(catalogStr.toString());
 								queryBuf.append(quotedId);
@@ -150,23 +150,23 @@ class MySQLDatabaseMetaDataFork
 							
 							while(fkresults.next())
 							{
-								String tableType = fkresults.getString("Type");
+								final String tableType = fkresults.getString("Type");
 								
 								if((tableType != null)
 										&& (tableType.equalsIgnoreCase("innodb") || tableType
 												.equalsIgnoreCase("SUPPORTS_FK")))
 								{
-									String comment = fkresults.getString("Comment").trim();
+									final String comment = fkresults.getString("Comment").trim();
 									
 									if(comment != null)
 									{
-										for(String table : MySQLDatabaseMetaDataFork.this.tables)
+										for(final String table : MySQLDatabaseMetaDataFork.this.tables)
 										{
 											// lower-case table name might be
 											// turned on
-											String tableNameWithCase = getTableNameWithCase(table);
+											final String tableNameWithCase = getTableNameWithCase(table);
 											
-											StringTokenizer commentTokens = new StringTokenizer(
+											final StringTokenizer commentTokens = new StringTokenizer(
 													comment,";",false);
 											
 											if(commentTokens.hasMoreTokens())
@@ -177,7 +177,7 @@ class MySQLDatabaseMetaDataFork
 												
 												while(commentTokens.hasMoreTokens())
 												{
-													String keys = commentTokens.nextToken();
+													final String keys = commentTokens.nextToken();
 													getExportKeyResults(catalogStr.toString(),
 															tableNameWithCase,keys,rows,
 															fkresults.getString("Name"));
@@ -197,7 +197,7 @@ class MySQLDatabaseMetaDataFork
 								{
 									fkresults.close();
 								}
-								catch(SQLException sqlEx)
+								catch(final SQLException sqlEx)
 								{
 									AssertionFailedException.shouldNotHappen(sqlEx);
 								}
@@ -223,7 +223,7 @@ class MySQLDatabaseMetaDataFork
 	
 	private Field[] createFkMetadataFields()
 	{
-		Field[] fields = new Field[14];
+		final Field[] fields = new Field[14];
 		fields[0] = newField("","PKTABLE_CAT",Types.CHAR,255);
 		fields[1] = newField("","PKTABLE_SCHEM",Types.CHAR,0);
 		fields[2] = newField("","PKTABLE_NAME",Types.CHAR,255);
@@ -242,8 +242,8 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private void getExportKeyResults(String catalog, String exportingTable, String keysComment,
-			List tuples, String fkTableName) throws SQLException
+	private void getExportKeyResults(final String catalog, final String exportingTable, final String keysComment,
+			final List tuples, final String fkTableName) throws SQLException
 	{
 		getResultsImpl(catalog,exportingTable,keysComment,tuples,fkTableName,true);
 	}
@@ -263,8 +263,8 @@ class MySQLDatabaseMetaDataFork
 		String	referencedTable;
 		
 		
-		LocalAndReferencedColumns(List localColumns, List refColumns, String constName,
-				String refCatalog, String refTable)
+		LocalAndReferencedColumns(final List localColumns, final List refColumns, final String constName,
+				final String refCatalog, final String refTable)
 		{
 			this.localColumnsList = localColumns;
 			this.referencedColumnsList = refColumns;
@@ -294,11 +294,11 @@ class MySQLDatabaseMetaDataFork
 		// 2: read in the schema name/table name
 		// 3: parse the closing parentheses
 		
-		String columnsDelimitter = ","; // what version did this change in?
+		final String columnsDelimitter = ","; // what version did this change in?
 		
-		char quoteChar = this.quotedId.length() == 0 ? 0 : this.quotedId.charAt(0);
+		final char quoteChar = this.quotedId.length() == 0 ? 0 : this.quotedId.charAt(0);
 		
-		int indexOfOpenParenLocalColumns = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
+		final int indexOfOpenParenLocalColumns = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
 				keysComment,"(",quoteChar,true);
 		
 		if(indexOfOpenParenLocalColumns == -1)
@@ -308,13 +308,13 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		String constraintName = removeQuotedId(keysComment
+		final String constraintName = removeQuotedId(keysComment
 				.substring(0,indexOfOpenParenLocalColumns).trim());
 		keysComment = keysComment.substring(indexOfOpenParenLocalColumns,keysComment.length());
 		
-		String keysCommentTrimmed = keysComment.trim();
+		final String keysCommentTrimmed = keysComment.trim();
 		
-		int indexOfCloseParenLocalColumns = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
+		final int indexOfCloseParenLocalColumns = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
 				keysCommentTrimmed,")",quoteChar,true);
 		
 		if(indexOfCloseParenLocalColumns == -1)
@@ -324,10 +324,10 @@ class MySQLDatabaseMetaDataFork
 					exceptionInterceptor);
 		}
 		
-		String localColumnNamesString = keysCommentTrimmed.substring(1,
+		final String localColumnNamesString = keysCommentTrimmed.substring(1,
 				indexOfCloseParenLocalColumns);
 		
-		int indexOfRefer = StringUtils.indexOfIgnoreCaseRespectQuotes(0,keysCommentTrimmed,
+		final int indexOfRefer = StringUtils.indexOfIgnoreCaseRespectQuotes(0,keysCommentTrimmed,
 				"REFER ",this.quotedId.charAt(0),true);
 		
 		if(indexOfRefer == -1)
@@ -337,7 +337,7 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		int indexOfOpenParenReferCol = StringUtils.indexOfIgnoreCaseRespectQuotes(indexOfRefer,
+		final int indexOfOpenParenReferCol = StringUtils.indexOfIgnoreCaseRespectQuotes(indexOfRefer,
 				keysCommentTrimmed,"(",quoteChar,false);
 		
 		if(indexOfOpenParenReferCol == -1)
@@ -347,10 +347,10 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		String referCatalogTableString = keysCommentTrimmed.substring(
+		final String referCatalogTableString = keysCommentTrimmed.substring(
 				indexOfRefer + "REFER ".length(),indexOfOpenParenReferCol);
 		
-		int indexOfSlash = StringUtils.indexOfIgnoreCaseRespectQuotes(0,referCatalogTableString,
+		final int indexOfSlash = StringUtils.indexOfIgnoreCaseRespectQuotes(0,referCatalogTableString,
 				"/",this.quotedId.charAt(0),false);
 		
 		if(indexOfSlash == -1)
@@ -360,11 +360,11 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		String referCatalog = removeQuotedId(referCatalogTableString.substring(0,indexOfSlash));
-		String referTable = removeQuotedId(referCatalogTableString.substring(indexOfSlash + 1)
+		final String referCatalog = removeQuotedId(referCatalogTableString.substring(0,indexOfSlash));
+		final String referTable = removeQuotedId(referCatalogTableString.substring(indexOfSlash + 1)
 				.trim());
 		
-		int indexOfCloseParenRefer = StringUtils.indexOfIgnoreCaseRespectQuotes(
+		final int indexOfCloseParenRefer = StringUtils.indexOfIgnoreCaseRespectQuotes(
 				indexOfOpenParenReferCol,keysCommentTrimmed,")",quoteChar,true);
 		
 		if(indexOfCloseParenRefer == -1)
@@ -374,12 +374,12 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		String referColumnNamesString = keysCommentTrimmed.substring(indexOfOpenParenReferCol + 1,
+		final String referColumnNamesString = keysCommentTrimmed.substring(indexOfOpenParenReferCol + 1,
 				indexOfCloseParenRefer);
 		
-		List referColumnsList = StringUtils.split(referColumnNamesString,columnsDelimitter,
+		final List referColumnsList = StringUtils.split(referColumnNamesString,columnsDelimitter,
 				this.quotedId,this.quotedId,false);
-		List localColumnsList = StringUtils.split(localColumnNamesString,columnsDelimitter,
+		final List localColumnsList = StringUtils.split(localColumnNamesString,columnsDelimitter,
 				this.quotedId,this.quotedId,false);
 		
 		return new LocalAndReferencedColumns(localColumnsList,referColumnsList,constraintName,
@@ -402,11 +402,11 @@ class MySQLDatabaseMetaDataFork
 	private static final int	DEFERRABILITY	= 13;
 	
 	
-	private void getResultsImpl(String catalog, String table, String keysComment, List tuples,
-			String fkTableName, boolean isExport) throws SQLException
+	private void getResultsImpl(final String catalog, final String table, final String keysComment, final List tuples,
+			final String fkTableName, final boolean isExport) throws SQLException
 	{
 		
-		LocalAndReferencedColumns parsedInfo = parseTableStatusIntoLocalAndReferencedColumns(keysComment);
+		final LocalAndReferencedColumns parsedInfo = parseTableStatusIntoLocalAndReferencedColumns(keysComment);
 		
 		if(isExport && !parsedInfo.referencedTable.equals(table))
 		{
@@ -420,16 +420,16 @@ class MySQLDatabaseMetaDataFork
 					SQLError.SQL_STATE_GENERAL_ERROR,exceptionInterceptor);
 		}
 		
-		Iterator localColumnNames = parsedInfo.localColumnsList.iterator();
-		Iterator referColumnNames = parsedInfo.referencedColumnsList.iterator();
+		final Iterator localColumnNames = parsedInfo.localColumnsList.iterator();
+		final Iterator referColumnNames = parsedInfo.referencedColumnsList.iterator();
 		
 		int keySeqIndex = 1;
 		
 		while(localColumnNames.hasNext())
 		{
-			byte[][] tuple = new byte[14][];
-			String lColumnName = removeQuotedId(localColumnNames.next().toString());
-			String rColumnName = removeQuotedId(referColumnNames.next().toString());
+			final byte[][] tuple = new byte[14][];
+			final String lColumnName = removeQuotedId(localColumnNames.next().toString());
+			final String rColumnName = removeQuotedId(referColumnNames.next().toString());
 			tuple[FKTABLE_CAT] = ((catalog == null) ? new byte[0] : s2b(catalog));
 			tuple[FKTABLE_SCHEM] = null;
 			tuple[FKTABLE_NAME] = s2b((isExport) ? fkTableName : table);
@@ -440,7 +440,7 @@ class MySQLDatabaseMetaDataFork
 			tuple[PKCOLUMN_NAME] = s2b(rColumnName);
 			tuple[KEY_SEQ] = s2b(Integer.toString(keySeqIndex++));
 			
-			int[] actions = getForeignKeyActions(keysComment);
+			final int[] actions = getForeignKeyActions(keysComment);
 			
 			tuple[UPDATE_RULE] = s2b(Integer.toString(actions[1]));
 			tuple[DELETE_RULE] = s2b(Integer.toString(actions[0]));
@@ -453,16 +453,16 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private int[] getForeignKeyActions(String commentString)
+	private int[] getForeignKeyActions(final String commentString)
 	{
-		int[] actions = new int[]{java.sql.DatabaseMetaData.importedKeyNoAction,
+		final int[] actions = new int[]{java.sql.DatabaseMetaData.importedKeyNoAction,
 				java.sql.DatabaseMetaData.importedKeyNoAction};
 		
-		int lastParenIndex = commentString.lastIndexOf(")");
+		final int lastParenIndex = commentString.lastIndexOf(")");
 		
 		if(lastParenIndex != (commentString.length() - 1))
 		{
-			String cascadeOptions = commentString.substring(lastParenIndex + 1).trim()
+			final String cascadeOptions = commentString.substring(lastParenIndex + 1).trim()
 					.toUpperCase(Locale.ENGLISH);
 			
 			actions[0] = getCascadeDeleteOption(cascadeOptions);
@@ -473,13 +473,13 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private int getCascadeDeleteOption(String cascadeOptions)
+	private int getCascadeDeleteOption(final String cascadeOptions)
 	{
-		int onDeletePos = cascadeOptions.indexOf("ON DELETE");
+		final int onDeletePos = cascadeOptions.indexOf("ON DELETE");
 		
 		if(onDeletePos != -1)
 		{
-			String deleteOptions = cascadeOptions.substring(onDeletePos,cascadeOptions.length());
+			final String deleteOptions = cascadeOptions.substring(onDeletePos,cascadeOptions.length());
 			
 			if(deleteOptions.startsWith("ON DELETE CASCADE"))
 			{
@@ -503,13 +503,13 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private int getCascadeUpdateOption(String cascadeOptions)
+	private int getCascadeUpdateOption(final String cascadeOptions)
 	{
-		int onUpdatePos = cascadeOptions.indexOf("ON UPDATE");
+		final int onUpdatePos = cascadeOptions.indexOf("ON UPDATE");
 		
 		if(onUpdatePos != -1)
 		{
-			String updateOptions = cascadeOptions.substring(onUpdatePos,cascadeOptions.length());
+			final String updateOptions = cascadeOptions.substring(onUpdatePos,cascadeOptions.length());
 			
 			if(updateOptions.startsWith("ON UPDATE CASCADE"))
 			{
@@ -549,7 +549,7 @@ class MySQLDatabaseMetaDataFork
 		
 		int frontOffset = 0;
 		int backOffset = s.length();
-		int quoteLength = this.quotedId.length();
+		final int quoteLength = this.quotedId.length();
 		
 		if(s.startsWith(this.quotedId))
 		{
@@ -565,10 +565,10 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private ResultSet extractForeignKeyFromCreateTable(String catalog, String tableName)
+	private ResultSet extractForeignKeyFromCreateTable(final String catalog, final String tableName)
 			throws SQLException
 	{
-		ArrayList tableList = new ArrayList();
+		final ArrayList tableList = new ArrayList();
 		java.sql.Statement stmt = null;
 		
 		if(tableName != null)
@@ -577,19 +577,19 @@ class MySQLDatabaseMetaDataFork
 		}
 		else
 		{
-			for(String table : this.tables)
+			for(final String table : this.tables)
 			{
 				tableList.add(table);
 			}
 		}
 		
-		ArrayList rows = new ArrayList();
-		Field[] fields = new Field[3];
+		final ArrayList rows = new ArrayList();
+		final Field[] fields = new Field[3];
 		fields[0] = newField("","Name",Types.CHAR,Integer.MAX_VALUE);
 		fields[1] = newField("","Type",Types.CHAR,255);
 		fields[2] = newField("","Comment",Types.CHAR,Integer.MAX_VALUE);
 		
-		int numTables = tableList.size();
+		final int numTables = tableList.size();
 		stmt = this.conn.getMetadataSafeStatement();
 		
 		String quoteChar = getIdentifierQuoteString();
@@ -610,7 +610,7 @@ class MySQLDatabaseMetaDataFork
 					tableToExtract = StringUtils.escapeQuote(tableToExtract,quoteChar);
 				}
 				
-				String query = new StringBuffer("SHOW CREATE TABLE ").append(quoteChar)
+				final String query = new StringBuffer("SHOW CREATE TABLE ").append(quoteChar)
 						.append(catalog).append(quoteChar).append(".").append(quoteChar)
 						.append(tableToExtract).append(quoteChar).toString();
 				
@@ -618,10 +618,10 @@ class MySQLDatabaseMetaDataFork
 				{
 					rs = stmt.executeQuery(query);
 				}
-				catch(SQLException sqlEx)
+				catch(final SQLException sqlEx)
 				{
 					// Table might've disappeared on us, not really an error
-					String sqlState = sqlEx.getSQLState();
+					final String sqlState = sqlEx.getSQLState();
 					
 					if(!"42S02".equals(sqlState)
 							&& sqlEx.getErrorCode() != MysqlErrorNumbers.ER_NO_SUCH_TABLE)
@@ -659,21 +659,21 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private java.sql.ResultSet buildResultSet(Field[] fields, java.util.ArrayList rows)
+	private java.sql.ResultSet buildResultSet(final Field[] fields, final java.util.ArrayList rows)
 			throws SQLException
 	{
 		return buildResultSet(fields,rows,this.conn);
 	}
 	
 	
-	static java.sql.ResultSet buildResultSet(Field[] fields, java.util.ArrayList rows,
-			MySQLConnection c) throws SQLException
+	static java.sql.ResultSet buildResultSet(final Field[] fields, final java.util.ArrayList rows,
+			final MySQLConnection c) throws SQLException
 	{
-		int fieldsLength = fields.length;
+		final int fieldsLength = fields.length;
 		
-		for(int i = 0; i < fieldsLength; i++)
+		for(int i = 0; i < fieldsLength; i++) 
 		{
-			int jdbcType = fields[i].getSQLType();
+			final int jdbcType = fields[i].getSQLType();
 			
 			switch(jdbcType)
 			{
@@ -691,12 +691,12 @@ class MySQLDatabaseMetaDataFork
 			try
 			{
 				// fields[i].setUseOldNameMetadata(true);
-				Method method = fields[i].getClass().getDeclaredMethod("setUseOldNameMetadata",
+				final Method method = fields[i].getClass().getDeclaredMethod("setUseOldNameMetadata",
 						boolean.class);
 				method.setAccessible(true);
 				method.invoke(fields[i],true);
 			}
-			catch(Exception e)
+			catch(final Exception e)
 			{
 				e.printStackTrace();
 			}
@@ -714,15 +714,15 @@ class MySQLDatabaseMetaDataFork
 					new Class[]{String.class,Field[].class,RowData.class,MySQLConnection.class,
 			com.mysql.jdbc.StatementImpl.class});
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
 	
 	
-	protected static ResultSetImpl getResultSetInstance(String catalog, Field[] fields,
-			RowData tuples, MySQLConnection conn, StatementImpl creatorStmt) throws SQLException
+	protected static ResultSetImpl getResultSetInstance(final String catalog, final Field[] fields,
+			final RowData tuples, final MySQLConnection conn, final StatementImpl creatorStmt) throws SQLException
 	{
 		if(!Util.isJdbc4())
 		{
@@ -734,16 +734,16 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private List extractForeignKeyForTable(ArrayList rows, java.sql.ResultSet rs, String catalog)
+	private List extractForeignKeyForTable(final ArrayList rows, final java.sql.ResultSet rs, final String catalog)
 			throws SQLException
 	{
-		byte[][] row = new byte[3][];
+		final byte[][] row = new byte[3][];
 		row[0] = rs.getBytes(1);
 		row[1] = s2b("SUPPORTS_FK");
 		
-		String createTableString = rs.getString(2);
-		StringTokenizer lineTokenizer = new StringTokenizer(createTableString,"\n");
-		StringBuffer commentBuf = new StringBuffer("comment; ");
+		final String createTableString = rs.getString(2);
+		final StringTokenizer lineTokenizer = new StringTokenizer(createTableString,"\n");
+		final StringBuffer commentBuf = new StringBuffer("comment; ");
 		boolean firstTime = true;
 		
 		String quoteChar = getIdentifierQuoteString();
@@ -798,9 +798,9 @@ class MySQLDatabaseMetaDataFork
 					line = line.substring(0,line.length() - 1);
 				}
 				
-				char quote = this.quotedId.charAt(0);
+				final char quote = this.quotedId.charAt(0);
 				
-				int indexOfFK = line.indexOf("FOREIGN KEY");
+				final int indexOfFK = line.indexOf("FOREIGN KEY");
 				
 				String localColumnName = null;
 				String referencedCatalogName = this.quotedId + catalog + this.quotedId;
@@ -809,16 +809,16 @@ class MySQLDatabaseMetaDataFork
 				
 				if(indexOfFK != -1)
 				{
-					int afterFk = indexOfFK + "FOREIGN KEY".length();
+					final int afterFk = indexOfFK + "FOREIGN KEY".length();
 					
-					int indexOfRef = StringUtils.indexOfIgnoreCaseRespectQuotes(afterFk,line,
+					final int indexOfRef = StringUtils.indexOfIgnoreCaseRespectQuotes(afterFk,line,
 							"REFERENCES",quote,true);
 					
 					if(indexOfRef != -1)
 					{
 						
-						int indexOfParenOpen = line.indexOf('(',afterFk);
-						int indexOfParenClose = StringUtils.indexOfIgnoreCaseRespectQuotes(
+						final int indexOfParenOpen = line.indexOf('(',afterFk);
+						final int indexOfParenClose = StringUtils.indexOfIgnoreCaseRespectQuotes(
 								indexOfParenOpen,line,")",quote,true);
 						
 						if(indexOfParenOpen == -1 || indexOfParenClose == -1)
@@ -828,16 +828,16 @@ class MySQLDatabaseMetaDataFork
 						
 						localColumnName = line.substring(indexOfParenOpen + 1,indexOfParenClose);
 						
-						int afterRef = indexOfRef + "REFERENCES".length();
+						final int afterRef = indexOfRef + "REFERENCES".length();
 						
-						int referencedColumnBegin = StringUtils.indexOfIgnoreCaseRespectQuotes(
+						final int referencedColumnBegin = StringUtils.indexOfIgnoreCaseRespectQuotes(
 								afterRef,line,"(",quote,true);
 						
 						if(referencedColumnBegin != -1)
 						{
 							referencedTableName = line.substring(afterRef,referencedColumnBegin);
 							
-							int referencedColumnEnd = StringUtils.indexOfIgnoreCaseRespectQuotes(
+							final int referencedColumnEnd = StringUtils.indexOfIgnoreCaseRespectQuotes(
 									referencedColumnBegin + 1,line,")",quote,true);
 							
 							if(referencedColumnEnd != -1)
@@ -846,7 +846,7 @@ class MySQLDatabaseMetaDataFork
 										referencedColumnEnd);
 							}
 							
-							int indexOfCatalogSep = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
+							final int indexOfCatalogSep = StringUtils.indexOfIgnoreCaseRespectQuotes(0,
 									referencedTableName,".",quote,true);
 							
 							if(indexOfCatalogSep != -1)
@@ -888,11 +888,11 @@ class MySQLDatabaseMetaDataFork
 				commentBuf.append(referencedColumnName);
 				commentBuf.append(")");
 				
-				int lastParenIndex = line.lastIndexOf(")");
+				final int lastParenIndex = line.lastIndexOf(")");
 				
 				if(lastParenIndex != (line.length() - 1))
 				{
-					String cascadeOptions = line.substring(lastParenIndex + 1);
+					final String cascadeOptions = line.substring(lastParenIndex + 1);
 					commentBuf.append(" ");
 					commentBuf.append(cascadeOptions);
 				}
@@ -906,7 +906,7 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private byte[] s2b(String s) throws SQLException
+	private byte[] s2b(final String s) throws SQLException
 	{
 		if(s == null)
 		{
@@ -919,13 +919,13 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private String getTableNameWithCase(String table)
+	private String getTableNameWithCase(final String table)
 	{
 		return this.conn.lowerCaseTableNames() ? table.toLowerCase() : table;
 	}
 	
 	
-	private IteratorWithCleanup getCatalogIterator(String catalogSpec) throws SQLException
+	private IteratorWithCleanup getCatalogIterator(final String catalogSpec) throws SQLException
 	{
 		IteratorWithCleanup allCatalogsIter;
 		if(catalogSpec != null)
@@ -965,15 +965,15 @@ class MySQLDatabaseMetaDataFork
 			stmt.setEscapeProcessing(false);
 			results = stmt.executeQuery("SHOW DATABASES");
 			
-			java.sql.ResultSetMetaData resultsMD = results.getMetaData();
-			Field[] fields = new Field[1];
+			final java.sql.ResultSetMetaData resultsMD = results.getMetaData();
+			final Field[] fields = new Field[1];
 			fields[0] = newField("","TABLE_CAT",Types.VARCHAR,resultsMD.getColumnDisplaySize(1));
 			
-			ArrayList tuples = new ArrayList();
+			final ArrayList tuples = new ArrayList();
 			
 			while(results.next())
 			{
-				byte[][] rowVal = new byte[1][];
+				final byte[][] rowVal = new byte[1][];
 				rowVal[0] = results.getBytes(1);
 				tuples.add(new ByteArrayRow(rowVal,exceptionInterceptor));
 			}
@@ -988,7 +988,7 @@ class MySQLDatabaseMetaDataFork
 				{
 					results.close();
 				}
-				catch(SQLException sqlEx)
+				catch(final SQLException sqlEx)
 				{
 					AssertionFailedException.shouldNotHappen(sqlEx);
 				}
@@ -1002,7 +1002,7 @@ class MySQLDatabaseMetaDataFork
 				{
 					stmt.close();
 				}
-				catch(SQLException sqlEx)
+				catch(final SQLException sqlEx)
 				{
 					AssertionFailedException.shouldNotHappen(sqlEx);
 				}
@@ -1013,7 +1013,7 @@ class MySQLDatabaseMetaDataFork
 	}
 	
 	
-	private String unQuoteQuotedIdentifier(String identifier)
+	private String unQuoteQuotedIdentifier(final String identifier)
 	{
 		boolean trimQuotes = false;
 		
@@ -1045,14 +1045,14 @@ class MySQLDatabaseMetaDataFork
 	
 	
 	
-	private static abstract class IterateBlock
+	private abstract static class IterateBlock
 	{
 		IteratorWithCleanup	iteratorWithCleanup;
 		Iterator			javaIterator;
 		boolean				stopIterating	= false;
 		
 		
-		IterateBlock(IteratorWithCleanup i)
+		IterateBlock(final IteratorWithCleanup i)
 		{
 			this.iteratorWithCleanup = i;
 			this.javaIterator = null;
@@ -1120,7 +1120,7 @@ class MySQLDatabaseMetaDataFork
 		String	value;
 		
 		
-		SingleStringIterator(String s)
+		SingleStringIterator(final String s)
 		{
 			value = s;
 		}
@@ -1157,7 +1157,7 @@ class MySQLDatabaseMetaDataFork
 		ResultSet	resultSet;
 		
 		
-		ResultSetIterator(ResultSet rs, int index)
+		ResultSetIterator(final ResultSet rs, final int index)
 		{
 			resultSet = rs;
 			colIndex = index;
@@ -1194,20 +1194,20 @@ class MySQLDatabaseMetaDataFork
 					int.class,int.class);
 			fieldConstructor.setAccessible(true);
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			e.printStackTrace();
 		}
 	}
 	
 	
-	private static Field newField(String tableName, String columnName, int jdbcType, int length)
+	private static Field newField(final String tableName, final String columnName, final int jdbcType, final int length)
 	{
 		try
 		{
 			return fieldConstructor.newInstance(tableName,columnName,jdbcType,length);
 		}
-		catch(Exception e)
+		catch(final Exception e)
 		{
 			e.printStackTrace();
 			return null;

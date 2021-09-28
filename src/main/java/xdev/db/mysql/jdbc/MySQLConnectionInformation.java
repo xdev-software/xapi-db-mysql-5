@@ -30,7 +30,7 @@ public class MySQLConnectionInformation extends ConnectionInformation<MySQLDbms>
 {
 	// /////////////////////////////////////////////////////////////////////////
 	// constructors //
-	// ///////////////////
+	// /////////////////// 
 	
 	/**
 	 * @param host
@@ -93,19 +93,19 @@ public class MySQLConnectionInformation extends ConnectionInformation<MySQLDbms>
 	
 	/**
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsConnectionInformation#createJdbcConnectionUrl(java.lang.String)
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsConnectionInformation#createJdbcConnectionUrl()
 	 */
 	@Override
 	public String createJdbcConnectionUrl()
 	{
-		String url = "jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getCatalog();
+		final String url = "jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getCatalog();
 		return appendUrlExtension(url);
 	}
 	
 	
 	/**
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.DbmsConnectionInformation#getJdbcDriverClassName()
+	 * @see com.xdev.jadoth.sqlengine.dbms.DbmsConnectionInformation#getJdbcDriverClassName()
 	 */
 	@Override
 	public String getJdbcDriverClassName()

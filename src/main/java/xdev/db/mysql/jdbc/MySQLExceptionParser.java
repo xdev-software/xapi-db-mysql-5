@@ -36,10 +36,10 @@ public class MySQLExceptionParser implements SQLExceptionParser
 	/**
 	 * @param e
 	 * @return
-	 * @see net.jadoth.sqlengine.dbmsAdaptor.SQLExceptionParser#parseSQLException(java.sql.SQLException)
+	 * @see com.xdev.jadoth.sqlengine.dbms.SQLExceptionParser#parseSQLException(java.sql.SQLException)
 	 */
-	@Override
-	public SQLEngineException parseSQLException(SQLException e)
+	@Override 
+	public SQLEngineException parseSQLException(final SQLException e)
 	{
 		return new SQLEngineException(e);
 	}
