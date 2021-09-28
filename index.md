@@ -33,10 +33,13 @@ The XDEV Application Framework is released under [GNU Lesser General Public Lice
 View the [summary of all dependencies online](https://xdev-software.github.io/xapi-db-mysql-5/dependencies/)
 
 ## Releasing [![Build](https://img.shields.io/github/workflow/status/xdev-software/xapi-db-mysql-5/Release?label=Release)](https://github.com/xdev-software/xapi-db-mysql-5/actions/workflows/release.yml)
-Consider doing a [test-deployment](https://github.com/xdev-software/xapi-db-mysql-5/actions/workflows/test-deploy.yml?query=branch%3Adevelop) before actually releasing.
+
+Before releasing:
+* Consider doing a [test-deployment](https://github.com/xdev-software/xapi-db-mysql-5/actions/workflows/test-deploy.yml?query=branch%3Adevelop) before actually releasing.
+* Check the [changelog](CHANGELOG.md)
 
 If the ``develop`` is ready for release, create a pull request to the ``master``-Branch and merge the changes.
 
 When the release is finished do the following:
 * Merge the auto-generated PR (with the incremented version number) back into the ``develop``
-* Add the release notes to the [GitHub release](https://github.com/xdev-software/xapi-db-mysql-5/releases/latest)
+* Link the corresponding version from the [changelog](CHANGELOG.md) to the [GitHub release](https://github.com/xdev-software/xapi-db-mysql-5/releases/latest)
